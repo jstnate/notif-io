@@ -13,7 +13,6 @@ export default class Popup {
     this.text = text;
     this.position = position || "center"; // Default value
     this.animationIn = animationIn || "fadeIn"; // Default value
-    this.animationOut = animationOut || "fadeOut"; // Default value
     this.contentStyle = contentStyle || {}; // Default value
     this.popupElement = null;
   }
@@ -147,14 +146,35 @@ export default class Popup {
 
     // Create the close button
     const closeButton = document.createElement("button");
-    closeButton.innerText = "Close";
     closeButton.addEventListener("click", () => this.hide());
+    closeButton.style.border = "none";
+    closeButton.style.backgroundColor = "transparent";
     closeButton.style.position = "absolute";
     closeButton.style.top = "10px";
     closeButton.style.right = "10px";
+    closeButton.style.cursor = "pointer";
 
-    // Add the text and close button to the popup
-    this.popupElement.appendChild(document.createTextNode(this.text));
+    // Create the close icon
+    const closeIcon = document.createElement("img");
+    closeIcon.src = "https://cdn.discordapp.com/attachments/901166683555782739/1194197377754615881/close.png?ex=65af79f9&is=659d04f9&hm=7874a783fd128a7a837a42f36515b74609e65c1ccf05c201a53822868d3fd2a8&";
+    closeIcon.style.width = "20px";
+    closeIcon.style.height = "20px";
+
+    // Append the close icon to the close button
+    closeButton.appendChild(closeIcon);
+
+    // Create a div for the text
+    const textDiv = document.createElement("div");
+
+    // Create a p element for the text
+    const textP = document.createElement("p");
+    textP.innerHTML = this.text;
+
+    // Append the p element to the div
+    textDiv.appendChild(textP);
+
+    // Add the div and close button to the popup
+    this.popupElement.appendChild(textDiv);
     this.popupElement.appendChild(closeButton);
 
     // Append the popup to the body
@@ -164,38 +184,16 @@ export default class Popup {
   /**
    * Hides the popup.
    */
-  /**
-   * Hides the popup.
-   */
   hide() {
     if (this.popupElement) {
-      switch (this.animationOut) {
-        case "fadeIn":
-          this.fadeIn();
-          break;
-        case "fadeOut":
-          this.fadeOut();
-          break;
-        case "fadeLeft":
-          this.fadeLeft();
-          break;
-        case "fadeRight":
-          this.fadeRight();
-          break;
-        default:
-          console.error(`Invalid animationOut: ${this.animationOut}`);
-      }
-
-      setTimeout(() => {
-        document.body.removeChild(this.popupElement);
-        this.popupElement = null;
-      }, 1000); // Adjust this timeout to match the duration of your animation
-
+      this.popupElement.remove();
+      this.popupElement = null;
+   
       // Remove the style element
       let style = document.querySelector("style");
       if (style) {
         document.head.removeChild(style);
       }
     }
-  }
+   }
 }
