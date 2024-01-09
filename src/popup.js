@@ -1,3 +1,4 @@
+/* global document */
 export default class Popup {
   /**
    * Creates a new Popup.
