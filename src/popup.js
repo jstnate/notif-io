@@ -4,16 +4,23 @@ export default class Popup {
    * Creates a new Popup.
    * @param {Object} options - The options for the popup.
    * @param {string} options.text - The text to display in the popup.
-   * @param {string} [options.position='center'] - The position of the popup. Can be 'center', 'topLeft', 'topRight', 'bottomLeft', or 'bottomRight'.
-   * @param {string} [options.animationIn='fadeIn'] - The animation to use when showing the popup.
-   * @param {string} [options.animationOut='fadeOut'] - The animation to use when hiding the popup.
-   * @param {Object} [options.contentStyle={}] - The styles to apply to the popup.
+   * @param {string} [options.position='center'] - The position of the popup with possible values 'center', 'top', 'topLeft', 'topRight', 'centerLeft', 'centerRight', 'bottomLeft', 'bottom', or 'bottomRight'.
+   * @param {string} [options.animationIn='fadeIn'] - The animation to use when showing the popup with possible values 'fadeIn', 'fadeLeft' or 'fadeRight'.
+   * @param {string} [options.animationOut='fadeInReverse'] - The animation to use when hiding the popup with possible values 'fadeInReverse', 'fadeLeftReverse', or 'fadeRightReverse'.
+   * @param {Object} [options.contentStyle={}] - The styles to apply to the popup content.
    */
-  constructor({ text, position, animationIn, animationOut, contentStyle }) {
+  constructor({
+    text = "Your text here",
+    position = "center",
+    animationIn = "fadeIn",
+    animationOut = "fadeInReverse",
+    contentStyle = {},
+  }) {
     this.text = text;
-    this.position = position || "center"; // Default value
-    this.animationIn = animationIn || "fadeIn"; // Default value
-    this.contentStyle = contentStyle || {}; // Default value
+    this.position = position; // Default value
+    this.animationIn = animationIn; // Default value
+    this.animationOut = animationOut; // Default value
+    this.contentStyle = contentStyle; // Default value
     this.popupElement = null;
   }
 
@@ -22,45 +29,79 @@ export default class Popup {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-        
+
         @keyframes fadeRight {
             from { opacity: 0; transform: translateX(100%) translateY(-50%); }
             to { opacity: 1; transform: translateX(-50%) translateY(-50%); }
         }
-        
+
         @keyframes fadeLeft {
             from { opacity: 0; transform: translateX(-100%) translateY(-50%); }
             to { opacity: 1; transform: translateX(-50%) translateY(-50%); }
         }
+
+        @keyframes fadeInReverse {
+          from { opacity: 1; }
+          to { opacity: 0; }
+       }
+
+       @keyframes fadeRightReverse {
+          from { opacity: 1; transform: translateX(-50%) translateY(-50%); }
+          to { opacity: 0; transform: translateX(100%) translateY(-50%); }
+       }
+
+       @keyframes fadeLeftReverse {
+          from { opacity: 1; transform: translateX(-50%) translateY(-50%); }
+          to { opacity: 0; transform: translateX(-100%) translateY(-50%); }
+       }
     `;
 
-  fadeIn() {
-    this.popupElement.style.animation = "fadeIn 1s ease-in-out";
-    this.popupElement.style.animationFillMode = "forwards";
-  }
-
-  fadeOut() {
-    this.popupElement.style.animation = "fadeOut 1s ease-in-out";
-    this.popupElement.style.animationFillMode = "forwards";
-  }
-
-  fadeLeft() {
-    this.popupElement.style.animation = "fadeLeft 1s ease-in-out";
-    this.popupElement.style.animationFillMode = "forwards";
-  }
-
-  fadeRight() {
-    this.popupElement.style.animation = "fadeRight 1s ease-in-out";
+  /**
+   * Applies the specified animation to the popupElement.
+   * @param {string} animation - The name of the animation to apply.
+   */
+  setAnimation(animation) {
+    this.popupElement.style.animation = `${animation} 1s ease-in-out`;
     this.popupElement.style.animationFillMode = "forwards";
   }
 
   /**
-   * Shows the popup.
+   * Retrieves and applies the specified animation using the setAnimation method.
+   * @param {string} animation - The name of the animation to retrieve and apply.
+   */
+  getAnimation(animation) {
+    switch (animation) {
+      case "fadeIn":
+        this.setAnimation("fadeIn");
+        break;
+      case "fadeOut":
+        this.setAnimation("fadeOut");
+        break;
+      case "fadeLeft":
+        this.setAnimation("fadeLeft");
+        break;
+      case "fadeRight":
+        this.setAnimation("fadeRight");
+        break;
+      case "fadeInReverse":
+        this.setAnimation("fadeInReverse");
+        break;
+      case "fadeOutReverse":
+        this.setAnimation("fadeOutReverse");
+        break;
+      case "fadeLeftReverse":
+        this.setAnimation("fadeLeftReverse");
+        break;
+      case "fadeRightReverse":
+        this.setAnimation("fadeRightReverse");
+        break;
+      default:
+        console.error(`Invalid animationIn: ${animation}`);
+    }
+  }
+
+  /**
+   * Shows the popup with the initial animation applied.
    */
   show() {
     // Create the popup element
@@ -79,22 +120,7 @@ export default class Popup {
     document.head.appendChild(style);
     Object.assign(this.popupElement.style, this.contentStyle);
 
-    switch (this.animationIn) {
-      case "fadeIn":
-        this.fadeIn();
-        break;
-      case "fadeOut":
-        this.fadeOut();
-        break;
-      case "fadeLeft":
-        this.fadeLeft();
-        break;
-      case "fadeRight":
-        this.fadeRight();
-        break;
-      default:
-        console.error(`Invalid animationIn: ${this.animationIn}`);
-    }
+    this.getAnimation(this.animationIn);
 
     let top = "50%";
     let left = "50%";
@@ -182,18 +208,23 @@ export default class Popup {
   }
 
   /**
-   * Hides the popup.
+   * Hides the popup and removes it from the DOM after the specified animation.
    */
   hide() {
     if (this.popupElement) {
-      this.popupElement.remove();
-      this.popupElement = null;
-   
-      // Remove the style element
-      let style = document.querySelector("style");
-      if (style) {
-        document.head.removeChild(style);
-      }
+      this.getAnimation(this.animationOut);
+
+      // Delay removal of popup element to allow animation to complete
+      setTimeout(() => {
+        document.body.removeChild(this.popupElement);
+        this.popupElement = null;
+
+        // Remove the style element that contains the keyframes
+        let style = document.querySelector("style");
+        if (style) {
+          document.head.removeChild(style);
+        }
+      }, 1000);
     }
    }
 }
