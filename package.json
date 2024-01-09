@@ -1,10 +1,11 @@
 {
   "name": "rendu-lib",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest -passWithNoTests",
     "release": "release-it"
   },
   "author": "",
@@ -19,5 +20,9 @@
     "eslint": "^8.56.0",
     "release-it": "^17.0.1"
   },
-  "release-it": {}
+  "release-it": {
+    "github": {
+      "release": true
+    }
+  }
 }
